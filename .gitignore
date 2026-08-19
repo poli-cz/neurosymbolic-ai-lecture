@@ -2,3 +2,10 @@ __pycache__/
 *.pyc
 .DS_Store
 .venv/
+
+# Lecturer-only material. These must never be committed - see the agent
+# instructions: if the brief or the solutions land in a commit, the repository
+# has to be deleted and recreated, because rewriting history is not enough.
+*.pptx
+*_speaker_brief.docx
+lecturer-solutions/
