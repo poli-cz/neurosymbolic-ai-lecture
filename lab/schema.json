@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PassengerFacts",
+  "description": "The typed interface between the neural half and the symbolic half. The reasoner never sees free text - only an object that validates against this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["age", "student"],
+  "properties": {
+    "age": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 120,
+      "description": "Age in completed years on the day of travel. A value outside 0-120 is an extraction error, not an unusual passenger."
+    },
+    "student": {
+      "type": "boolean",
+      "description": "Holds a valid full-time student card. NOTE: enrolment is not enough - the discount requires the card. A person who studies but cannot show the card is student=false."
+    },
+    "has_id": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can present photo ID at inspection. Not used by the fare rules in this lab, but it is in the schema, so it must still validate."
+    }
+  },
+
+  "$defs": {
+    "Decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fare", "rule", "facts_used"],
+      "properties": {
+        "fare": {
+          "enum": ["child", "student", "senior", "full", "abstain"],
+          "description": "'abstain' is a first-class outcome, not an error. It means the system declined to decide and the case escalates."
+        },
+        "rule": {
+          "type": "string",
+          "description": "Identifier of the rule that fired: R1, R2, R3, R4-fallback, or R0-invalid-input."
+        },
+        "facts_used": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of the facts the firing rule actually read. This is the derivation. An empty list on a non-abstain decision is a bug."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional human-readable gloss. Rendering only - it must never carry information the rule did not."
+        }
+      }
+    }
+  }
+}

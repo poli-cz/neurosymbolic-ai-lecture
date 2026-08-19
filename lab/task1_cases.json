@@ -1,0 +1,98 @@
+[
+  {
+    "id": "c01",
+    "note": "plain child",
+    "facts": { "age": 8, "student": false },
+    "expect": { "fare": "child", "rule": "R1", "facts_used": ["age"] }
+  },
+  {
+    "id": "c02",
+    "note": "ORDER MATTERS: a 14-year-old with a student card is a child, not a student",
+    "facts": { "age": 14, "student": true },
+    "expect": { "fare": "child", "rule": "R1", "facts_used": ["age"] }
+  },
+  {
+    "id": "c03",
+    "note": "lower boundary of the student band",
+    "facts": { "age": 15, "student": true },
+    "expect": { "fare": "student", "rule": "R2", "facts_used": ["student", "age"] }
+  },
+  {
+    "id": "c04",
+    "note": "the typical case",
+    "facts": { "age": 19, "student": true, "has_id": true },
+    "expect": { "fare": "student", "rule": "R2", "facts_used": ["student", "age"] }
+  },
+  {
+    "id": "c05",
+    "note": "upper boundary, inclusive",
+    "facts": { "age": 25, "student": true },
+    "expect": { "fare": "student", "rule": "R2", "facts_used": ["student", "age"] }
+  },
+  {
+    "id": "c06",
+    "note": "OFF BY ONE: 26 is outside the band. Student card does not help",
+    "facts": { "age": 26, "student": true },
+    "expect": { "fare": "full", "rule": "R4-fallback", "facts_used": [] }
+  },
+  {
+    "id": "c07",
+    "note": "studies, but too old for the discount",
+    "facts": { "age": 41, "student": true },
+    "expect": { "fare": "full", "rule": "R4-fallback", "facts_used": [] }
+  },
+  {
+    "id": "c08",
+    "note": "one year short of senior",
+    "facts": { "age": 64, "student": false },
+    "expect": { "fare": "full", "rule": "R4-fallback", "facts_used": [] }
+  },
+  {
+    "id": "c09",
+    "note": "senior boundary, inclusive",
+    "facts": { "age": 65, "student": false },
+    "expect": { "fare": "senior", "rule": "R3", "facts_used": ["age"] }
+  },
+  {
+    "id": "c10",
+    "note": "a 70-year-old PhD student is a senior: R2 fails on age, R3 fires",
+    "facts": { "age": 70, "student": true },
+    "expect": { "fare": "senior", "rule": "R3", "facts_used": ["age"] }
+  },
+  {
+    "id": "c11",
+    "note": "COVERAGE: a required fact is missing. Do not assume false",
+    "facts": { "age": 19 },
+    "expect": { "fare": "abstain", "rule": "R0-invalid-input", "facts_used": [] }
+  },
+  {
+    "id": "c12",
+    "note": "RANGE: 300 is an extraction error, not an unusual passenger",
+    "facts": { "age": 300, "student": false },
+    "expect": { "fare": "abstain", "rule": "R0-invalid-input", "facts_used": [] }
+  },
+  {
+    "id": "c13",
+    "note": "TYPE: the age arrived as a string",
+    "facts": { "age": "nineteen", "student": true },
+    "expect": { "fare": "abstain", "rule": "R0-invalid-input", "facts_used": [] }
+  },
+  {
+    "id": "c14",
+    "note": "TYPE: 'yes' is not a boolean. Truthiness is not validation",
+    "facts": { "age": 19, "student": "yes" },
+    "expect": { "fare": "abstain", "rule": "R0-invalid-input", "facts_used": [] }
+  },
+  {
+    "id": "c15",
+    "note": "SCHEMA: a fact nobody declared. Where did it come from?",
+    "facts": { "age": 19, "student": true, "veteran": true },
+    "expect": { "fare": "abstain", "rule": "R0-invalid-input", "facts_used": [] }
+  },
+  {
+    "id": "c16",
+    "note": "newborn",
+    "facts": { "age": 0, "student": false },
+    "expect": { "fare": "child", "rule": "R1", "facts_used": ["age"] }
+  }
+]

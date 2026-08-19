@@ -1,0 +1,12 @@
+{"id": "g01", "text": "Hi, I'm 19 and I have a valid student card from Masaryk University.", "gold_facts": {"age": 19, "student": true}, "gold_fare": "student", "note": "the easy one"}
+{"id": "g02", "text": "I have 2 kids travelling with me and I'm 34.", "gold_facts": {"age": 34, "student": false}, "gold_fare": "full", "note": "first number is not the age"}
+{"id": "g03", "text": "I'm not a student any more, finished last June. Age 24.", "gold_facts": {"age": 24, "student": false}, "gold_fare": "full", "note": "negation the extractor cannot see"}
+{"id": "g04", "text": "I'm a pensioner and I don't have my card on me today.", "gold_facts": null, "gold_fare": "abstain", "note": "no age stated anywhere - abstaining is the CORRECT answer"}
+{"id": "g05", "text": "DOB 1958, travelling to Prague.", "gold_facts": null, "gold_fare": "abstain", "note": "loud failure: 1958 is outside the schema range, validation catches it"}
+{"id": "g06", "text": "I'm 25, still studying, but my card expired last week.", "gold_facts": {"age": 25, "student": false}, "gold_fare": "full", "note": "read the schema: the discount needs the CARD, not the enrolment"}
+{"id": "g07", "text": "14 years old, travelling alone.", "gold_facts": {"age": 14, "student": false}, "gold_fare": "child", "note": "the other easy one"}
+{"id": "g08", "text": "Dobry den, je mi 19 let a studuji na VUT.", "gold_facts": {"age": 19, "student": true}, "gold_fare": "student", "note": "a language nobody built the extractor for"}
+{"id": "g09", "text": "Twenty-two, full-time student, card in my wallet.", "gold_facts": {"age": 22, "student": true}, "gold_fare": "student", "note": "the age is spelled out, so there is no number to match"}
+{"id": "g10", "text": "I'm 70 and I still teach at the university, so I suppose I'm a student of life.", "gold_facts": {"age": 70, "student": false}, "gold_fare": "senior", "note": "RIGHT ANSWER, WRONG FACTS - the fare is correct and the trace is a lie"}
+{"id": "g11", "text": "I turn 15 tomorrow, so today I'm still 14.", "gold_facts": {"age": 14, "student": false}, "gold_fare": "child", "note": "two numbers, and the wrong one comes first"}
+{"id": "g12", "text": "Age: 65. Not a student, never was.", "gold_facts": {"age": 65, "student": false}, "gold_fare": "senior", "note": "right answer again, and again for the wrong reason"}

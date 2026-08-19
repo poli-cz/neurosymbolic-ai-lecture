@@ -1,0 +1,57 @@
+# Smoke test only. The lab files under lab/ are deliberately unfinished and
+# deliberately naive; nothing here formats, lints or completes them.
+name: lab smoke test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: byte-compile every lab file
+        run: python -m compileall -q lab
+
+      - name: data files parse, and case ids are unique
+        run: |
+          python - <<'PY'
+          import json, sys
+
+          cases = json.load(open("lab/task1_cases.json"))
+          ids = [c["id"] for c in cases]
+          assert len(ids) == 16, f"expected 16 task 1 cases, found {len(ids)}"
+          assert len(set(ids)) == len(ids), "duplicate case id in task1_cases.json"
+
+          with open("lab/task2_inputs.jsonl", encoding="utf-8") as fh:
+              rows = [json.loads(line) for line in fh if line.strip()]
+          assert rows, "task2_inputs.jsonl is empty"
+          gids = [r["id"] for r in rows]
+          assert len(set(gids)) == len(gids), "duplicate case id in task2_inputs.jsonl"
+
+          json.load(open("lab/schema.json"))
+          print(f"ok: {len(ids)} task 1 cases, {len(rows)} task 2 inputs")
+          PY
+
+      - name: the task stubs are still unimplemented
+        working-directory: lab
+        run: |
+          set +e
+          out=$(python3 check_task1.py)
+          rc=$?
+          set -e
+          echo "$out"
+          if [ "$rc" -eq 0 ]; then
+            echo "check_task1.py passed: a working decide() is in the repo, which must never happen"
+            exit 1
+          fi
+          echo "$out" | grep -q "not implemented yet" || {
+            echo "unexpected output from a fresh checkout"
+            exit 1
+          }
