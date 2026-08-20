@@ -1,5 +1,5 @@
 """
-TASK 1 - the symbolic half.
+TASK 1 - the symbolic half.  *** REFERENCE SOLUTION (branch `solution`) ***
 
 You implement `decide()`. It is a pure function: same facts in, same decision out,
 every time, with no model, no sampling and no network call.
@@ -81,8 +81,61 @@ def decide(facts: dict) -> dict:
       * On abstain, put the validator's complaints in "reason".
       * Do not raise. A reasoner that crashes on bad input has no fallback.
     """
-    # ---- your code below -------------------------------------------------
-    raise NotImplementedError("implement decide()")
+    # ---- reference solution ----------------------------------------------
+    # Step 0: the gate. Nothing below runs on facts that do not validate.
+    # This is what makes decide() total: every possible input, including
+    # garbage, reaches a defined outcome instead of an exception.
+    problems = validate(facts)
+    if problems:
+        return {
+            "fare": "abstain",
+            "rule": "R0-invalid-input",
+            "facts_used": [],
+            "reason": "; ".join(problems),
+        }
+
+    age = facts["age"]
+    student = facts["student"]
+
+    # First match wins, so the order of these four blocks IS the policy.
+    # Swap R1 and R2 and a 14-year-old with a card silently becomes a
+    # student fare - the code still runs, the tests are what notice.
+    if age < 15:
+        return {
+            "fare": "child",
+            "rule": "R1",
+            "facts_used": ["age"],
+            "reason": f"age {age} is under 15",
+        }
+
+    # NOTE the schema: `student` means "holds a valid full-time student card",
+    # not "is enrolled somewhere". The rule reads the flag and nothing else -
+    # keeping that distinction true is the grounding layer's job, in task 2.
+    if student and age < 26:
+        return {
+            "fare": "student",
+            "rule": "R2",
+            # Two facts were read, so two facts are in the derivation.
+            "facts_used": ["student", "age"],
+            "reason": f"holds a student card and age {age} is under 26",
+        }
+
+    if age >= 65:
+        return {
+            "fare": "senior",
+            "rule": "R3",
+            "facts_used": ["age"],
+            "reason": f"age {age} is 65 or over",
+        }
+
+    # R4 is a decision, not a leftover. It read no fact to reach it, so its
+    # derivation is empty on purpose: the honest trace is "nothing matched".
+    return {
+        "fare": "full",
+        "rule": "R4-fallback",
+        "facts_used": [],
+        "reason": "no discount rule matched",
+    }
     # ----------------------------------------------------------------------
 
 

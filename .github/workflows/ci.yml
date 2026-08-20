@@ -1,6 +1,7 @@
-# Smoke test only. The lab files under lab/ are deliberately unfinished and
-# deliberately naive; nothing here formats, lints or completes them.
-name: lab smoke test
+# Branch `solution` only. On `main` this same file asserts the OPPOSITE - that
+# the task stubs are still empty - so do not merge this workflow either way.
+# Here it checks that the answer key still answers.
+name: reference solution
 
 on:
   push:
@@ -39,19 +40,38 @@ jobs:
           print(f"ok: {len(ids)} task 1 cases, {len(rows)} task 2 inputs")
           PY
 
-      - name: the task stubs are still unimplemented
+      - name: both checkers pass and nothing is confidently wrong
         working-directory: lab
         run: |
-          set +e
-          out=$(python3 check_task1.py)
-          rc=$?
-          set -e
+          python3 check_task1.py
+          out=$(python3 check_task2.py)
           echo "$out"
-          if [ "$rc" -eq 0 ]; then
-            echo "check_task1.py passed: a working decide() is in the repo, which must never happen"
-            exit 1
-          fi
-          echo "$out" | grep -q "not implemented yet" || {
-            echo "unexpected output from a fresh checkout"
+          echo "$out" | grep -qE "CONFIDENTLY WRONG +0 " || {
+            echo "the reference solution produced a confidently-wrong answer"
             exit 1
           }
+
+      - name: the facts it does produce are the gold facts
+        working-directory: lab
+        run: |
+          python3 - <<'PY'
+          import json
+          from task2_grounding import ground
+
+          rows = [json.loads(l) for l in open("task2_inputs.jsonl", encoding="utf-8") if l.strip()]
+          expected_abstentions = {"g08", "g10"}
+          answered = abstained = 0
+          for row in rows:
+              facts = ground(row["text"])
+              if facts is None:
+                  abstained += 1
+                  if row["gold_facts"] is not None:
+                      assert row["id"] in expected_abstentions, f"{row['id']} started abstaining"
+                  continue
+              answered += 1
+              assert facts == row["gold_facts"], (
+                  f"{row['id']}: grounded {facts}, gold {row['gold_facts']} - "
+                  "a right fare from a wrong fact is the one thing this lab is about"
+              )
+          print(f"ok: {answered} answered with gold-identical facts, {abstained} abstained")
+          PY
